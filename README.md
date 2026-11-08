@@ -46,6 +46,6 @@ For local builds, use JDK 17 and Gradle 8.9:
 
 ## Important
 
-The current APK is a Termux companion onboarding shell, not yet a functioning coding agent. It detects and opens Termux and copies setup commands, but does not execute shell commands or verify OMP. The fixed OMP diagnostic bridge is implemented but still needs physical-device verification. Workspace access, interactive OMP sessions, authentication, and device regression tests remain pending.
+The current APK is a Termux companion onboarding shell, not yet a functioning coding agent. It detects and opens Termux, copies setup commands, and can request one fixed read-only OMP version diagnostic through the permissioned Termux bridge. It does not run the installer or accept arbitrary shell commands. The bridge still needs physical-device verification. Workspace access, interactive OMP sessions, authentication, and device regression tests remain pending.
 
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) before redistributing third-party runtime components.
