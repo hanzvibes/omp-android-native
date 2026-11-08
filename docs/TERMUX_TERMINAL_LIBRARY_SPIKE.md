@@ -46,6 +46,6 @@ Before production integration, create a small isolated adapter/fork that:
 6. propagates resize, paste, Ctrl-C, and process exit;
 7. passes the terminal compatibility matrix on a physical ARM64 Android device.
 
-The library is GPL-3.0-or-later at the inspected upstream project level. Review the exact library/module licensing and distribution obligations before shipping a derivative or bundling it in a release APK.
+The Termux app repository is GPLv3-only, but its LICENSE.md explicitly exempts the terminal-view and terminal-emulator libraries: those terminal components derive from Android Terminal Emulator code released under Apache-2.0. Do not pull in termux-shared without separately reviewing its mixed licensing. Preserve upstream notices and verify the exact source/artifact license files before shipping.
 
 Do not add the dependency to the production app until the licensing review and isolated spike pass. Do not substitute the old Termux app bridge or localhost.
