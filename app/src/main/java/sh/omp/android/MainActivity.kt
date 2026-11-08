@@ -109,6 +109,9 @@ private fun OmpHomeScreen() {
                 }
             }
 
+            Text("PROJECT", color = Muted, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            WorkspaceManager()
+
             Text("RUNTIME CONNECTION", color = Muted, fontSize = 11.sp, fontWeight = FontWeight.Bold)
             Card(colors = CardDefaults.cardColors(containerColor = SurfaceColor), shape = RoundedCornerShape(16.dp)) {
                 Column(Modifier.fillMaxWidth().padding(15.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
