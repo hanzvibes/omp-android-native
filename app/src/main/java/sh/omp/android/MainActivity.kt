@@ -157,6 +157,10 @@ private fun OmpHomeScreen() {
                 CopyCommandButton("Copy OMP installer", OMP_INSTALL_COMMAND)
             }
 
+            SetupStep("04", "Enable Termux storage", "Run this in Termux and grant storage access when Android asks. Restart Termux if needed.") {
+                CopyCommandButton("Copy storage setup command", "termux-setup-storage")
+            }
+
             Button(
                 onClick = {
                     checking = true
