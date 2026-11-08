@@ -7,6 +7,7 @@ on:
     paths:
       - ".github/workflows/omp-native-android-check.yml"
       - "docs/ANDROID_RUNTIME.md"
+      - "patches/omp/pi-vfs-android-faccessat.patch"
   workflow_dispatch:
 
 permissions:
