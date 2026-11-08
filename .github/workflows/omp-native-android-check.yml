@@ -7,7 +7,7 @@ on:
     paths:
       - ".github/workflows/omp-native-android-check.yml"
       - "docs/ANDROID_RUNTIME.md"
-      - "patches/omp/pi-vfs-android-faccessat.patch"
+      - "tools/patch-omp-android.py"
   workflow_dispatch:
 
 permissions:
@@ -42,6 +42,10 @@ jobs:
           rustup toolchain install nightly-2026-10-06 --profile minimal
           rustup target add aarch64-linux-android --toolchain nightly-2026-10-06
 
+      - name: Patch upstream Android libc compatibility
+        run: python3 tools/patch-omp-android.py
+        working-directory: upstream-omp
+
       - name: Cross-check pi-natives
         working-directory: upstream-omp
         run: |
@@ -53,8 +57,6 @@ jobs:
           export AR_aarch64_linux_android="$NDK_BIN/llvm-ar"
           export CMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake"
           export CMAKE_ANDROID_NDK="$ANDROID_NDK_HOME"
-          git apply --check ../patches/omp/pi-vfs-android-faccessat.patch
-          git apply ../patches/omp/pi-vfs-android-faccessat.patch
           cargo +nightly-2026-10-06 check --locked -p pi-natives --target aarch64-linux-android
 
       - name: Upload Cargo diagnostics
