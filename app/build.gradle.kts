@@ -38,6 +38,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.ui:ui-viewbinding")
+    implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
     implementation("com.termux.termux-app:terminal-view:0.118.0")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
