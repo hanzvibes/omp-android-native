@@ -77,3 +77,17 @@ Required user setup:
 The Termux documentation requires both the Android permission and the Termux `allow-external-apps` setting. Result callbacks use background command output and exit code. See https://github.com/termux/termux-app/wiki/RUN_COMMAND-Intent.
 
 The callback protocol and package/version behavior still require a physical-device test. A successful Android compile alone does not prove the bridge works on a device.
+
+
+## Android workspace picker (first milestone)
+
+The app now uses Android's Storage Access Framework folder picker:
+- User chooses the project directory explicitly.
+- The app requests persistable read/write URI access and stores the selected tree URI and display name.
+- The saved URI is checked when the screen is reopened; the user can change or remove the selection.
+- No broad storage permission is requested.
+
+Important boundary: this URI grant belongs to OMP Android. It does **not** give Termux direct access to the same content-provider URI. The next implementation step must add an explicit, bounded file-sync bridge into a Termux-readable directory. Termux shared-storage access generally requires the user to run `termux-setup-storage` and grant Termux storage permission; Android 11+ storage restrictions can still affect access. Do not treat the folder picker as a connected OMP workspace yet.
+
+Android reference: https://developer.android.com/training/data-storage/shared/documents-files
+Termux storage reference: https://github.com/termux/termux-tools/blob/master/doc/termux.1.md.in
