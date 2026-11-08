@@ -52,6 +52,8 @@ jobs:
           export AR_aarch64_linux_android="$NDK_BIN/llvm-ar"
           export CMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake"
           export CMAKE_ANDROID_NDK="$ANDROID_NDK_HOME"
+          git apply --check ../patches/omp/pi-vfs-android-faccessat.patch
+          git apply ../patches/omp/pi-vfs-android-faccessat.patch
           cargo +nightly-2026-10-06 check --locked -p pi-natives --target aarch64-linux-android
 
       - name: Upload Cargo diagnostics
