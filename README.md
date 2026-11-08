@@ -32,7 +32,8 @@ This is not an official upstream OMP Android binary release. Do not use Linux gl
 - [x] Termux companion onboarding: package detection, launch, and copy-only setup commands
 - [x] Implement a restricted Termux RUN_COMMAND diagnostic bridge
 - [ ] Verify RUN_COMMAND callback on a physical Android device
-- [ ] Workspace picker and process lifecycle
+- [x] Persistent Android workspace folder picker (Termux sync pending)
+- [ ] Workspace-to-Termux file sync and process lifecycle
 - [ ] Connect OMP sessions and provider authentication
 - [ ] Release APK and device regression tests
 
@@ -46,6 +47,6 @@ For local builds, use JDK 17 and Gradle 8.9:
 
 ## Important
 
-The current APK is a Termux companion onboarding shell, not yet a functioning coding agent. It detects and opens Termux, copies setup commands, and can request one fixed read-only OMP version diagnostic through the permissioned Termux bridge. It does not run the installer or accept arbitrary shell commands. The bridge still needs physical-device verification. Workspace access, interactive OMP sessions, authentication, and device regression tests remain pending.
+The current APK is a Termux companion onboarding shell, not yet a functioning coding agent. It detects and opens Termux, copies setup commands, and can request one fixed read-only OMP version diagnostic through the permissioned Termux bridge. It does not run the installer or accept arbitrary shell commands. The bridge still needs physical-device verification. Workspace folder selection and persisted Android URI access are implemented, but files are not yet synchronized into Termux. Interactive OMP sessions, authentication, and device regression tests remain pending.
 
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) before redistributing third-party runtime components.
