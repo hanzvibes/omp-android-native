@@ -53,6 +53,8 @@ References:
 - [ ] Choose a maintainable embedded PTY + terminal implementation with a license compatible with this app.
 - [ ] Prove it can start an Android/Bionic process from app-private storage.
 - [ ] Prove terminal rendering, key input, and resize with a small PTY smoke program.
+- [x] Define the OMP terminal compatibility matrix and add a manual PTY smoke script (`docs/TERMINAL_COMPATIBILITY.md`, `tools/terminal-compat-smoke.sh`).
+- [ ] Run the terminal smoke script on a real Android device using the selected embedded terminal backend.
 - [ ] Prove an Android-compatible Bun binary can run from the app sandbox.
 - [ ] Prove the OMP Rust addon loads in that exact runtime.
 - [ ] Launch `omp` and capture a real on-device TUI session.
@@ -71,4 +73,4 @@ Do not replace the current main-branch workflow or claim the MVP is functional u
 
 The current `main` branch is still a Termux companion prototype. Its workspace picker and RUN_COMMAND launch path do not satisfy the one-app product requirement. They remain reference code until the embedded runtime vertical slice is proven.
 
-No embedded OMP TUI, standalone runtime, or physical-device verification is claimed by this document.
+The compatibility requirements and manual smoke fixture are now in the spike branch. The fixture passed `bash -n` syntax validation in the development container, but has not been run in an Android PTY. No embedded OMP TUI, standalone runtime, or physical-device verification is claimed by this document.
