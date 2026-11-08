@@ -115,11 +115,16 @@ fun WorkspaceManager() {
                 if (workspaceUri != null) {
                     OutlinedButton(onClick = {
                         runCatching {
-                            context.contentResolver.releasePersistableUriPermission(
-                                Uri.parse(workspaceUri),
-                                android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                                    android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                            )
+                            val selectedUri = Uri.parse(workspaceUri)
+                            val grant = context.contentResolver.persistedUriPermissions
+                                .firstOrNull { it.uri == selectedUri }
+                            val heldFlags = grant?.let {
+                                (if (it.isReadPermission) android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION else 0) or
+                                    (if (it.isWritePermission) android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION else 0)
+                            } ?: 0
+                            if (heldFlags != 0) {
+                                context.contentResolver.releasePersistableUriPermission(selectedUri, heldFlags)
+                            }
                         }
                         prefs.edit().remove(WORKSPACE_URI_KEY).remove(WORKSPACE_NAME_KEY).apply()
                         workspaceUri = null
