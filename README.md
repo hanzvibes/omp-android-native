@@ -34,7 +34,8 @@ This is not an official upstream OMP Android binary release. Do not use Linux gl
 - [ ] Verify RUN_COMMAND callback on a physical Android device
 - [x] Persistent Android workspace folder picker
 - [x] Bounded project sync into Termux shared storage
-- [ ] Interactive OMP session and process lifecycle
+- [x] Launch interactive OMP session in a new Termux terminal
+- [ ] Session lifecycle, exit status, and reconnect handling
 - [ ] Connect OMP sessions and provider authentication
 - [ ] Release APK and device regression tests
 
@@ -48,6 +49,6 @@ For local builds, use JDK 17 and Gradle 8.9:
 
 ## Important
 
-The current APK is a Termux companion onboarding shell, not yet a functioning coding agent. It detects and opens Termux, copies setup commands, and can request one fixed read-only OMP version diagnostic through the permissioned Termux bridge. It does not run the installer or accept arbitrary shell commands. The bridge still needs physical-device verification. Workspace folders can be copied into Termux shared storage with explicit user permission. Sync is limited to 3,000 files / 50 MB, skips dependency/build folders and secret env/key files, and never deletes destination files. The bridge and file sync still need physical-device verification. Interactive OMP sessions, authentication, and device regression tests remain pending.
+The current APK is a Termux companion onboarding shell, not yet a functioning coding agent. It detects and opens Termux, copies setup commands, and can request one fixed read-only OMP version diagnostic through the permissioned Termux bridge. It does not run the installer or accept arbitrary shell commands. The bridge still needs physical-device verification. Workspace folders can be copied into Termux shared storage with explicit user permission. Sync is limited to 3,000 files / 50 MB, skips dependency/build folders and secret env/key files, and never deletes destination files. The bridge and file sync still need physical-device verification. Session lifecycle/reconnect handling, provider authentication, and device regression tests remain pending. The interactive launch path is implemented but not yet device-verified.
 
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) before redistributing third-party runtime components.
