@@ -1,45 +1,49 @@
 # OMP Android Native
 
-Native Android ARM64 runtime and mobile interface for [Oh My Pi](https://omp.sh/).
+A native Android application shell for running [Oh My Pi](https://omp.sh/) on ARM64 devices.
 
-> Early-stage project. The first milestone is proving the upstream OMP runtime on Android/Termux ARM64 before integrating it into the APK.
+> Early-stage project. The first Android UI scaffold and APK CI workflow are in place. The OMP runtime is not yet connected to the app.
 
-## Project goals
+## Current direction
 
-- Run OMP on-device on Android ARM64.
-- Bootstrap a compatible Bun runtime and OMP dependencies.
-- Provide a Kotlin/Jetpack Compose mobile shell.
-- Manage workspaces, sessions, and runtime lifecycle.
-- Build reproducible APK artifacts with GitHub Actions.
+Use native Android / Termux ARM64 userspace. A community-maintained OMP Termux integration documents a source-build route using Android-native Bun and a Rust addon compiled for Android / Bionic.
 
-## Architecture
+- Android integration: https://github.com/PlayWithG/oh-my-pi-termux/tree/termux
+- OMP upstream: https://github.com/can1357/oh-my-pi
+- Runtime details and caveats: [docs/ANDROID_RUNTIME.md](docs/ANDROID_RUNTIME.md)
 
-```text
-Android app (Kotlin + Compose)
-  └── Runtime manager / foreground service
-       └── Android ARM64 userspace
-            ├── Bun runtime
-            ├── Oh My Pi
-            └── Native addon(s), if supported
-```
+This is not an official upstream OMP Android binary release. Do not use Linux glibc binaries or generic Linux Bun builds as substitutes for Android-native artifacts.
 
-The runtime is intentionally isolated behind an adapter. Do not assume Linux x86_64 binaries or generic Linux Bun builds work on Android. Validate upstream compatibility before packaging binaries.
+## Stack
+
+- Kotlin
+- Jetpack Compose
+- Android Gradle Plugin
+- GitHub Actions
+- Target architecture: Android ARM64
 
 ## Development status
 
 - [x] Repository bootstrap
-- [ ] Verify upstream OMP Android/Termux compatibility
-- [ ] Runtime bootstrap prototype
-- [ ] Android shell and service
-- [ ] Workspace and process integration
-- [ ] CI APK build and device testing
+- [x] Native Compose application shell
+- [x] Debug APK CI workflow
+- [x] Document Android / Termux runtime approach
+- [ ] Verify the community runtime on a physical Android device
+- [ ] Implement a secure runtime integration bridge
+- [ ] Workspace picker and process lifecycle
+- [ ] Connect OMP sessions and provider authentication
+- [ ] Release APK and device regression tests
 
-## References
+## Build
 
-- [Oh My Pi](https://omp.sh/)
-- [OMP source](https://github.com/can1357/oh-my-pi)
-- [Termux](https://termux.dev/)
+The GitHub Actions workflow builds a debug APK on pushes to main and pull requests. The artifact is published as `omp-android-debug`.
 
-## License
+For local builds, use JDK 17 and Gradle 8.9:
 
-The Android integration code will be licensed separately. Oh My Pi and bundled dependencies retain their respective upstream licenses. See `THIRD_PARTY_NOTICES.md` before distributing a build.
+    gradle assembleDebug
+
+## Important
+
+The current APK is a UI scaffold, not a functioning coding agent. Runtime installation, process execution, storage access, authentication, and device testing remain unimplemented.
+
+See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) before redistributing third-party runtime components.
