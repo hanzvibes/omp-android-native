@@ -45,3 +45,16 @@ Run on a real ARM64 Termux device:
     omp --help
 
 A successful GitHub Actions cross-build is not a substitute for loading the native addon on a physical Android device.
+
+
+## App-to-Termux integration: first safe milestone
+
+The APK now detects whether the Termux package is installed, can launch Termux, and provides copy-only setup commands. It deliberately does not execute shell commands, install packages, or read Termux's private app data.
+
+This is a companion workflow, not yet a process bridge:
+- Android package visibility is declared for `com.termux`.
+- The user opens Termux explicitly.
+- Setup commands are copied to the clipboard and pasted by the user.
+- OMP runtime status remains "Not verified" until a future, explicit bridge can return a trustworthy command result.
+
+The app must not label Termux presence as proof that OMP is installed. A later bridge should use Termux's documented RUN_COMMAND integration only after the user enables the required permission in Termux, and should return bounded stdout/stderr plus an exit code. Never execute installer commands silently from the APK.
