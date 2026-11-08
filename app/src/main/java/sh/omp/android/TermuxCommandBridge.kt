@@ -35,7 +35,7 @@ object TermuxCommandBridge {
         val callbackIntent = Intent(context, TermuxResultService::class.java)
         val requestCode = nextRequestCode.incrementAndGet()
         val pendingFlags = PendingIntent.FLAG_ONE_SHOT or
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_MUTABLE else 0
+            (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_MUTABLE else 0)
         val callback = PendingIntent.getService(context, requestCode, callbackIntent, pendingFlags)
 
         val command = Intent(ACTION_RUN_COMMAND).apply {
