@@ -5,7 +5,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -107,6 +111,19 @@ private fun OmpTerminalScreen() {
                 }
             )
 
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                TerminalKeyButton("ESC") { sendTerminalInput(session, "\u001b") }
+                TerminalKeyButton("TAB") { sendTerminalInput(session, "\t") }
+                TerminalKeyButton("CTRL+C") { sendTerminalInput(session, "\u0003") }
+                TerminalKeyButton("↑") { sendTerminalInput(session, "\u001b[A") }
+                TerminalKeyButton("↓") { sendTerminalInput(session, "\u001b[B") }
+                TerminalKeyButton("←") { sendTerminalInput(session, "\u001b[D") }
+                TerminalKeyButton("→") { sendTerminalInput(session, "\u001b[C") }
+            }
+
             Text(
                 "Embedded PTY foundation. OMP/Bun runtime is not installed in this build yet.",
                 color = Muted,
@@ -115,4 +132,24 @@ private fun OmpTerminalScreen() {
             )
         }
     }
+}
+
+@Composable
+private fun TerminalKeyButton(label: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        contentPadding = PaddingValues(horizontal = 13.dp, vertical = 7.dp),
+        modifier = Modifier.height(40.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Panel,
+            contentColor = Color.White
+        )
+    ) {
+        Text(label, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+private fun sendTerminalInput(session: TerminalSession, value: String) {
+    val bytes = value.toByteArray(Charsets.UTF_8)
+    session.write(bytes, 0, bytes.size)
 }
