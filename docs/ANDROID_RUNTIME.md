@@ -25,7 +25,7 @@ The Termux integration documents a failure in Bun 1.3.14 where bun build --compi
 
 ## APK integration decision
 
-The current app is only a native Compose shell. A normal Android APK cannot assume it can install and manage an arbitrary Termux environment by copying Linux files into its private directory. The next milestone must validate one of these integration models:
+The app began as a native Compose shell. A normal Android APK cannot assume it can install and manage an arbitrary Termux environment by copying Linux files into its private directory. The runtime integration options considered at the start of the project were:
 
 1. Termux companion integration: use the Termux app and a documented, permissioned bridge. Lowest-risk way to prove OMP on-device.
 2. Bundled Android userspace: package a legally distributable Android userspace and native Bun / addon artifacts, then implement extraction, updates, process lifecycle and storage permissions. Larger engineering effort requiring device tests.
