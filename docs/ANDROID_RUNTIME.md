@@ -58,3 +58,22 @@ This is a companion workflow, not yet a process bridge:
 - OMP runtime status remains "Not verified" until a future, explicit bridge can return a trustworthy command result.
 
 The app must not label Termux presence as proof that OMP is installed. A later bridge should use Termux's documented RUN_COMMAND integration only after the user enables the required permission in Termux, and should return bounded stdout/stderr plus an exit code. Never execute installer commands silently from the APK.
+
+
+## Permissioned runtime diagnostic bridge
+
+The app now contains a narrowly scoped Termux RUN_COMMAND bridge for one fixed diagnostic:
+- Executes Termux bash with a fixed script that checks `command -v omp` and, if present, runs `omp --version`.
+- Requests a result through a one-shot mutable PendingIntent, then stores bounded output and exit status locally.
+- Does not accept arbitrary commands from UI, deep links, or external intents.
+- Does not run the OMP installer automatically.
+
+Required user setup:
+1. Install a compatible Termux build (result callback requires Termux >= 0.109).
+2. In Android App Info for OMP Android, grant the additional `Run commands in Termux environment` permission.
+3. In Termux, set `allow-external-apps=true` in `~/.termux/termux.properties`, then restart Termux.
+4. Tap **Check OMP runtime** in OMP Android.
+
+The Termux documentation requires both the Android permission and the Termux `allow-external-apps` setting. Result callbacks use background command output and exit code. See https://github.com/termux/termux-app/wiki/RUN_COMMAND-Intent.
+
+The callback protocol and package/version behavior still require a physical-device test. A successful Android compile alone does not prove the bridge works on a device.
