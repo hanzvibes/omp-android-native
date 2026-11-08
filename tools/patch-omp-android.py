@@ -67,4 +67,43 @@ patch(
 """
 )
 
+
+# Android exposes the Linux procfs process model. Reuse the Linux snapshot
+# implementation so ps/top/pgrep retain real process data instead of stubs.
+snapshot = Path("crates/pi-builtins/src/proc_snapshot.rs")
+snapshot_text = snapshot.read_text()
+linux_cfg = '#[cfg(target_os = "linux")]'
+snapshot_text, snapshot_count = snapshot_text.replace(
+    linux_cfg, '#[cfg(any(target_os = "linux", target_os = "android"))]'
+), snapshot_text.count(linux_cfg)
+if snapshot_count < 2:
+    raise SystemExit(f"Expected Linux process snapshot cfgs; found {snapshot_count}")
+snapshot.write_text(snapshot_text)
+
+# Android uses the Linux /proc/meminfo source for ps memory totals.
+ps = Path("crates/pi-builtins/src/ps.rs")
+ps_text = ps.read_text()
+ps_cfg = '#[cfg(target_os = "linux")]\nfn ps_total_memory_bytes()'
+ps_replacement = '#[cfg(any(target_os = "linux", target_os = "android"))]\nfn ps_total_memory_bytes()'
+if ps_text.count(ps_cfg) != 1:
+    raise SystemExit("Expected exactly one Linux ps_total_memory_bytes implementation")
+ps.write_text(ps_text.replace(ps_cfg, ps_replacement))
+
+# Bionic getnameinfo uses usize for both sockaddr and host/service buffer sizes.
+patch(
+    "crates/pi-builtins/src/rsync/transport/tcp/sock_unix.rs",
+    """\t\tlibc::getnameinfo(
+\t\t\taddr.as_ptr(),
+\t\t\taddr.len,
+\t\t\tbuf.as_mut_ptr(),
+\t\t\tbuf.len() as libc::socklen_t,
+""",
+    """\t\tlibc::getnameinfo(
+\t\t\taddr.as_ptr(),
+\t\t\taddr.len as _,
+\t\t\tbuf.as_mut_ptr(),
+\t\t\tbuf.len() as _,
+"""
+)
+
 print("Applied Android Bionic compatibility edits.")
