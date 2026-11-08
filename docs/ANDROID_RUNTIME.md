@@ -137,3 +137,15 @@ Pinned asset:
 - Asset SHA-256: `c1e10a8c7b1cdb059bd0c55ff6f49cab502424ed4ad5df41a2ce116abd95e72b`
 
 This gate verifies the upstream binary artifact only. It does **not** yet package Bun into the APK or prove that Android permits launching it from the app-private runtime directory. The next integration step must also supply the matching C++ runtime, build and package OMP's `pi-natives` addon for Android/Bionic, and prove execution on a physical ARM64 device. Do not mark OMP runtime as installed until those checks pass.
+
+
+## Android/Bionic native-addon compatibility finding
+
+The first real Android ARM64 `cargo check -p pi-natives` reached OMP's Rust dependency graph and exposed an upstream portability issue before compiling the addon: `crates/pi-vfs/src/fs.rs` referenced `libc::AT_EACCESS`, which the Android target in the pinned `libc` crate does not expose.
+
+A narrowly scoped patch is maintained in this repository at `patches/omp/pi-vfs-android-faccessat.patch` and applied only to the temporary upstream checkout in the native-compatibility CI job:
+- Android uses `faccessat(..., flags = 0)`, which checks real IDs. Android application processes use matching real/effective app UIDs in this runtime.
+- Other Unix targets retain `AT_EACCESS`.
+- The workflow runs `git apply --check` before applying the patch, then retries the cross-target check.
+
+This is a compatibility probe, not yet a distributable addon build. A passing `cargo check` will prove Rust compilation only; the next stages still need a complete native build, Node-API ABI verification, packaging, and device execution tests.
