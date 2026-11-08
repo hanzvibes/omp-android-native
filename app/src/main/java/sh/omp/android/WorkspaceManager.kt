@@ -60,7 +60,7 @@ fun WorkspaceManager() {
         contract = ActivityResultContracts.OpenDocumentTree()
     ) { uri: Uri? ->
         if (uri != null) {
-            if (persistFolderAccess(context, uri)) {
+            if (persistFolderAccess(context, uri, requireWrite = false)) {
                 val name = DocumentFile.fromTreeUri(context, uri)?.name ?: "Selected workspace"
                 prefs.edit().putString(WORKSPACE_URI_KEY, uri.toString())
                     .putString(WORKSPACE_NAME_KEY, name).apply()
@@ -81,7 +81,7 @@ fun WorkspaceManager() {
             }.getOrDefault(false)
             if (!isPrimaryRoot) {
                 error = "Pilih root Internal storage (bukan subfolder atau SD card) agar path Termux bisa dipetakan."
-            } else if (persistFolderAccess(context, uri)) {
+            } else if (persistFolderAccess(context, uri, requireWrite = true)) {
                 val name = DocumentFile.fromTreeUri(context, uri)?.name ?: "Internal storage"
                 prefs.edit().putString(SHARED_ROOT_URI_KEY, uri.toString())
                     .putString(SHARED_ROOT_NAME_KEY, name).apply()
@@ -207,6 +207,8 @@ private fun syncWorkspaceToSharedStorage(
     val sharedRoot = DocumentFile.fromTreeUri(context, sharedRootUri)
         ?: error("Internal storage access expired. Select it again.")
     check(source.isDirectory && sharedRoot.isDirectory) { "Selected locations must both be folders." }
+    val sourceTreeId = runCatching { DocumentsContract.getTreeDocumentId(sourceUri) }.getOrNull()
+    check(sourceTreeId != "primary:") { "Choose a project subfolder, not the entire Internal storage root." }
 
     val workspaceParent = sharedRoot.findFile(SYNC_FOLDER)
         ?: sharedRoot.createDirectory(SYNC_FOLDER)
@@ -235,7 +237,7 @@ private fun copyDirectory(
     check(depth <= 20) { "Workspace has too many nested folders (limit: 20)." }
     source.listFiles().forEach { child ->
         val name = child.name ?: return@forEach
-        if (shouldSkipWorkspaceEntry(name)) return@forEach
+        if (shouldSkipWorkspaceEntry(name) || name.equals(SYNC_FOLDER, ignoreCase = true)) return@forEach
 
         if (child.isDirectory) {
             val target = destination.findFile(name) ?: destination.createDirectory(name)
@@ -287,17 +289,14 @@ private fun formatBytes(bytes: Long): String = when {
     else -> "${bytes / (1024 * 1024)} MB"
 }
 
-private fun persistFolderAccess(context: Context, uri: Uri): Boolean {
-    val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+private fun persistFolderAccess(context: Context, uri: Uri, requireWrite: Boolean): Boolean {
+    val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+        (if (requireWrite) Intent.FLAG_GRANT_WRITE_URI_PERMISSION else 0)
     return runCatching {
         context.contentResolver.takePersistableUriPermission(uri, flags)
-        true
-    }.getOrElse {
-        runCatching {
-            context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            true
-        }.getOrDefault(false)
-    }
+        val grant = context.contentResolver.persistedUriPermissions.firstOrNull { it.uri == uri }
+        grant?.isReadPermission == true && (!requireWrite || grant.isWritePermission)
+    }.getOrDefault(false)
 }
 
 private fun releaseFolderAccess(context: Context, uri: Uri) {
