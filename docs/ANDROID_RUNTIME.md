@@ -122,3 +122,18 @@ After a successful workspace sync, the app can request a new foreground Termux t
 User prerequisites: Termux installed, `allow-external-apps=true`, Android `RUN_COMMAND` permission granted to OMP Android, and `termux-setup-storage` completed in Termux. The project must be synced successfully in the current app session before the launch button is enabled.
 
 This is an initial session-launch bridge, not an embedded terminal. Physical-device verification is still required for foreground session behavior, Android background restrictions, and the installed Termux build.
+
+
+## Pinned native Bun artifact verification
+
+The first standalone-runtime supply-chain gate is now defined in `tools/verify-android-bun.sh`:
+- Pins the community Android ARM64 Bun 1.4.2 release from `PlayWithG/bun`.
+- Verifies the published SHA-256 digest before inspecting the file.
+- Requires an AArch64 ELF executable, Android's `/system/bin/linker64` interpreter, and the `libc++_shared.so` runtime dependency.
+- Runs in Android CI before the APK build.
+
+Pinned asset:
+- Release: https://github.com/PlayWithG/bun/releases/tag/termux-v1.4.2
+- Asset SHA-256: `c1e10a8c7b1cdb059bd0c55ff6f49cab502424ed4ad5df41a2ce116abd95e72b`
+
+This gate verifies the upstream binary artifact only. It does **not** yet package Bun into the APK or prove that Android permits launching it from the app-private runtime directory. The next integration step must also supply the matching C++ runtime, build and package OMP's `pi-natives` addon for Android/Bionic, and prove execution on a physical ARM64 device. Do not mark OMP runtime as installed until those checks pass.
