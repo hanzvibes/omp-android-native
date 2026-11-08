@@ -112,7 +112,7 @@ class TermuxResultService : IntentService("TermuxResultService") {
         const val ACTION_RESULT = "sh.omp.android.TERMUX_RESULT"
         const val PREFS = "termux_runtime_result"
 
-        private const val EXTRA_RESULT_BUNDLE = "com.termux.app.terminal.TermuxService.EXTRA_PLUGIN_RESULT_BUNDLE"
+        private const val EXTRA_RESULT_BUNDLE = "result"
         private const val EXTRA_STDOUT = "stdout"
         private const val EXTRA_STDERR = "stderr"
         private const val EXTRA_EXIT_CODE = "exitCode"
