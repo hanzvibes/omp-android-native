@@ -21,7 +21,16 @@ jobs:
         with:
           gradle-version: "8.9"
       - name: Validate terminal smoke script syntax
-        run: bash -n tools/terminal-compat-smoke.sh
+        run: |
+          bash -n tools/terminal-compat-smoke.sh
+          bash -n tools/verify-android-bun.sh
+      - name: Fetch pinned Android ARM64 Bun
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/PlayWithG/bun/releases/download/termux-v1.4.2/bun \
+            --output "$RUNNER_TEMP/bun-android-arm64"
+      - name: Verify Android Bun checksum and ELF dependencies
+        run: bash tools/verify-android-bun.sh "$RUNNER_TEMP/bun-android-arm64"
       - name: Build debug APK
         run: gradle --no-daemon assembleDebug
       - name: Upload debug APK
