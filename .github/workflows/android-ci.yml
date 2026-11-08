@@ -1,7 +1,6 @@
 name: Android CI
 on:
   push:
-    branches: [main]
   pull_request:
   workflow_dispatch:
 permissions:
@@ -21,6 +20,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
+      - name: Validate terminal smoke script syntax
+        run: bash -n tools/terminal-compat-smoke.sh
       - name: Build debug APK
         run: gradle --no-daemon assembleDebug
       - name: Upload debug APK
