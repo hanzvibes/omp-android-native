@@ -138,8 +138,8 @@ fun WorkspaceManager() {
 
             Button(
                 onClick = {
-                    val source = workspaceUri?.let(Uri::parse)
-                    val destination = sharedRootUri?.let(Uri::parse)
+                    val source = workspaceUri?.let { Uri.parse(it) }
+                    val destination = sharedRootUri?.let { Uri.parse(it) }
                     if (source == null || destination == null) {
                         error = "Pilih folder project dan root Internal storage terlebih dahulu."
                     } else {
@@ -266,23 +266,43 @@ private fun copyDirectory(
         } else if (child.isFile) {
             counter.files += 1
             check(counter.files <= MAX_SYNC_FILES) { "Workspace exceeds the $MAX_SYNC_FILES-file sync limit." }
-            val target = destination.findFile(name) ?: destination.createFile(
-                child.type ?: "application/octet-stream", name
-            ) ?: error("Cannot create file: $name")
-            check(target.isFile) { "A folder already exists where file '$name' should be." }
+            val existing = destination.findFile(name)
+            check(existing == null || existing.isFile) { "A folder already exists where file '$name' should be." }
+            val tempName = ".$name.omp-syncing"
+            destination.findFile(tempName)?.delete()
+            val temp = destination.createFile(child.type ?: "application/octet-stream", tempName)
+                ?: error("Cannot create temporary file for: $name")
 
-            context.contentResolver.openInputStream(child.uri)?.use { input ->
-                context.contentResolver.openOutputStream(target.uri, "wt")?.use { output ->
-                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-                    while (true) {
-                        val read = input.read(buffer)
-                        if (read < 0) break
-                        counter.bytes += read
-                        check(counter.bytes <= MAX_SYNC_BYTES) { "Workspace exceeds the 50 MB sync limit." }
-                        output.write(buffer, 0, read)
-                    }
-                } ?: error("Cannot write file: $name")
-            } ?: error("Cannot read file: $name")
+            try {
+                context.contentResolver.openInputStream(child.uri)?.use { input ->
+                    context.contentResolver.openOutputStream(temp.uri, "wt")?.use { output ->
+                        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                        while (true) {
+                            val read = input.read(buffer)
+                            if (read < 0) break
+                            counter.bytes += read
+                            check(counter.bytes <= MAX_SYNC_BYTES) { "Workspace exceeds the 50 MB sync limit." }
+                            output.write(buffer, 0, read)
+                        }
+                    } ?: error("Cannot write file: $name")
+                } ?: error("Cannot read file: $name")
+
+                var backup: DocumentFile? = null
+                if (existing != null) {
+                    val backupName = ".$name.omp-backup"
+                    destination.findFile(backupName)?.delete()
+                    check(existing.renameTo(backupName)) { "Cannot safely replace existing file: $name" }
+                    backup = destination.findFile(backupName)
+                }
+                if (!temp.renameTo(name)) {
+                    backup?.renameTo(name)
+                    error("Cannot finalize synced file: $name")
+                }
+                backup?.delete()
+            } catch (failure: Throwable) {
+                temp.delete()
+                throw failure
+            }
         }
     }
 }
