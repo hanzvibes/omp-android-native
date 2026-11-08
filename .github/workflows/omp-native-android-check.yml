@@ -43,7 +43,7 @@ jobs:
           rustup target add aarch64-linux-android --toolchain nightly-2026-10-06
 
       - name: Patch upstream Android libc compatibility
-        run: python3 tools/patch-omp-android.py
+        run: python3 ../tools/patch-omp-android.py
         working-directory: upstream-omp
 
       - name: Cross-check pi-natives
