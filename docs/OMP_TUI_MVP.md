@@ -1,0 +1,74 @@
+# Embedded OMP TUI MVP
+
+## Product requirement
+
+The MVP must open the real interactive OMP TUI inside OMP Android. Installing or opening the separate Termux app is not an accepted runtime dependency.
+
+Target user flow:
+
+1. Install and open OMP Android.
+2. On first launch, the app prepares its private Android ARM64 runtime and OMP payload, with visible progress and cancellation/retry.
+3. The app opens an embedded terminal screen and starts the real `omp` process in a selected workspace.
+4. Keyboard input, ANSI rendering, terminal resize, process exit, and relaunch are handled by OMP Android.
+5. On later launches, an already-installed runtime is reused and the app goes straight to the OMP home/TUI flow.
+
+## MVP acceptance criteria
+
+- [ ] No Termux package, Termux permission, Termux app launch, or RUN_COMMAND bridge is required.
+- [ ] Runtime is stored under this app's private files directory; no root and no localhost bridge.
+- [ ] Runtime target is Android ARM64 / Bionic. Linux glibc binaries and Ubuntu PRoot are not accepted substitutes.
+- [ ] The exact Android-compatible Bun runtime and OMP native addon are pinned to immutable versions/commits and verified by SHA-256 before extraction.
+- [ ] OMP is installed from a pinned source revision using an Android-compatible build path. No mutable `curl | sh` installer is executed by the app.
+- [ ] The real `omp` interactive TUI starts inside an embedded terminal backed by a PTY.
+- [ ] Terminal handles ANSI alternate screen, cursor movement, colors, resize, UTF-8, Ctrl-C, Enter, backspace, and the keyboard protocol required by OMP.
+- [ ] The app can stop/restart the process and show useful bootstrap/runtime errors.
+- [ ] A physical ARM64 Android device test proves the TUI opens and accepts input. CI compilation alone is not proof.
+
+## Runtime and terminal investigation
+
+### OMP runtime
+
+The community Android/Termux integration documents that OMP needs Android/Bionic-native Bun and a native Rust addon built for Android ARM64. Its source-build route currently uses Termux packages and a Termux-native Bun distribution. A Termux binary must not be assumed portable to another app's private directory: package prefixes, linker paths, and runtime assumptions must be audited before bundling.
+
+Reference: https://github.com/PlayWithG/oh-my-pi-termux/tree/termux
+
+### Embedded runtime candidate
+
+`libtermux-android` advertises a standalone userspace, PTY, and terminal widget, but its own README explicitly labels it experimental and not production-ready. It is therefore a research candidate only, not an approved production dependency.
+
+Reference: https://github.com/libtermux/libtermux-android
+
+### Terminal emulator candidate
+
+ConnectBot's `termlib` is a Compose terminal component using libvterm and is Apache-2.0 licensed. Its README lists Kitty/iTerm2 protocol support as planned, while OMP's terminal experience may rely on Kitty keyboard protocol behavior. It must pass a compatibility spike before being selected as the OMP terminal.
+
+References:
+- https://github.com/connectbot/termlib
+- https://github.com/can1357/oh-my-pi/blob/main/docs/tui.md
+
+## Implementation sequence
+
+### Milestone A — prove the vertical slice
+
+- [ ] Choose a maintainable embedded PTY + terminal implementation with a license compatible with this app.
+- [ ] Prove it can start an Android/Bionic process from app-private storage.
+- [ ] Prove terminal rendering, key input, and resize with a small PTY smoke program.
+- [ ] Prove an Android-compatible Bun binary can run from the app sandbox.
+- [ ] Prove the OMP Rust addon loads in that exact runtime.
+- [ ] Launch `omp` and capture a real on-device TUI session.
+
+Do not replace the current main-branch workflow or claim the MVP is functional until this vertical slice passes.
+
+### Milestone B — product integration
+
+- [ ] Add first-run runtime bootstrap with pinned artifacts, hashes, progress, cancellation, and recovery.
+- [ ] Add embedded terminal screen and lifecycle-aware PTY session owner.
+- [ ] Connect workspace picker to the app-private runtime path without the Termux shared-storage copy.
+- [ ] Add provider configuration and secure credential storage.
+- [ ] Remove the old Termux companion setup from the primary onboarding flow.
+
+## Current implementation status
+
+The current `main` branch is still a Termux companion prototype. Its workspace picker and RUN_COMMAND launch path do not satisfy the one-app product requirement. They remain reference code until the embedded runtime vertical slice is proven.
+
+No embedded OMP TUI, standalone runtime, or physical-device verification is claimed by this document.
