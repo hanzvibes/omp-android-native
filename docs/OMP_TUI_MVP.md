@@ -50,9 +50,9 @@ References:
 
 ### Milestone A — prove the vertical slice
 
-- [ ] Choose a maintainable embedded PTY + terminal implementation with a license compatible with this app.
-- [ ] Prove it can start an Android/Bionic process from app-private storage.
-- [ ] Prove terminal rendering, key input, and resize with a small PTY smoke program.
+- [x] Select the official Termux `terminal-view` / `terminal-emulator` libraries as the initial PTY + rendering base; dependency is pinned to `0.118.0`.
+- [x] Add an embedded `TerminalSession` backed by the library JNI PTY and launch `/system/bin/sh` from app-private storage in the app UI.
+- [ ] Build and run the shell prototype on an Android device; rendering, keyboard input, and resize are not yet device-verified.
 - [x] Define the OMP terminal compatibility matrix and add a manual PTY smoke script (`docs/TERMINAL_COMPATIBILITY.md`, `tools/terminal-compat-smoke.sh`).
 - [ ] Run the terminal smoke script on a real Android device using the selected embedded terminal backend.
 - [ ] Prove an Android-compatible Bun binary can run from the app sandbox.
@@ -73,4 +73,4 @@ Do not replace the current main-branch workflow or claim the MVP is functional u
 
 The current `main` branch is still a Termux companion prototype. Its workspace picker and RUN_COMMAND launch path do not satisfy the one-app product requirement. They remain reference code until the embedded runtime vertical slice is proven.
 
-The compatibility requirements and manual smoke fixture are now in the spike branch. The fixture passed `bash -n` syntax validation in the development container, but has not been run in an Android PTY. No embedded OMP TUI, standalone runtime, or physical-device verification is claimed by this document.
+The compatibility requirements and manual smoke fixture are in this spike branch. The app now contains an embedded Android shell prototype using the official Termux terminal libraries (`terminal-view` + its transitive `terminal-emulator`) and JNI PTY. The library's `terminal-view` and `terminal-emulator` modules are explicitly license-exempt from the Termux app's GPL-3.0-only license and retain their Apache-2.0 licensing; do not add `termux-shared` without a separate license review. The prototype has not yet passed CI or a physical-device test. It does not bundle Bun, install OMP, implement the Kitty keyboard adapter, or support DEC synchronized output mode 2026. No embedded OMP TUI is claimed.
