@@ -108,3 +108,17 @@ This is a one-way copy, not a live mount or two-way sync. OMP edits inside Termu
 
 Termux storage docs: https://github.com/termux/termux-tools/blob/master/doc/termux.1.md.in
 Termux filesystem layout and cross-app access model: https://github.com/termux/termux-packages/wiki/Termux-file-system-layout
+
+
+## Interactive OMP launch
+
+After a successful workspace sync, the app can request a new foreground Termux terminal session through the documented RUN_COMMAND API:
+- Starts Termux bash in the synced workspace directory.
+- Runs the fixed command `exec omp`.
+- Requests a new terminal session and asks Termux to open its activity.
+- Workspace names are normalized to a restricted character set before constructing the working directory.
+- The app does not embed or control Termux's terminal UI; interactive input/output and session lifecycle remain owned by Termux.
+
+User prerequisites: Termux installed, `allow-external-apps=true`, Android `RUN_COMMAND` permission granted to OMP Android, and `termux-setup-storage` completed in Termux. The project must be synced successfully in the current app session before the launch button is enabled.
+
+This is an initial session-launch bridge, not an embedded terminal. Physical-device verification is still required for foreground session behavior, Android background restrictions, and the installed Termux build.
