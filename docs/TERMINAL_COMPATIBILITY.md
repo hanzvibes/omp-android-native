@@ -48,13 +48,15 @@ The upstream README documents a private app runtime, JNI PTY support, session AP
 
 Reference: https://github.com/libtermux/libtermux-android
 
-### Official Termux terminal libraries\n\nThe official Termux App repository publishes reusable `terminal-view` and `terminal-emulator` libraries. The inspected `TerminalSession` uses JNI to create a PTY process and supports terminal resize. Source inspection found xterm `modifyOtherKeys`, but did not find the Kitty keyboard query/stack protocol or DEC synchronized output mode 2026 required by OMP. It is therefore a strong PTY/rendering base candidate only after a compatibility adapter or maintained fork is implemented. The terminal view is an Android `View`, so Compose integration uses `AndroidView`. Check GPL-3.0-or-later obligations before distribution.\n\nReference and details: [Termux terminal library spike](TERMUX_TERMINAL_LIBRARY_SPIKE.md)\n\n### ConnectBot termlib
+### Official Termux terminal libraries\n\nThe official Termux App repository publishes reusable `terminal-view` and `terminal-emulator` libraries. The inspected `TerminalSession` uses JNI to create a PTY process and supports terminal resize. Source inspection found xterm `modifyOtherKeys`, but did not find the Kitty keyboard query/stack protocol or DEC synchronized output mode 2026 required by OMP. It is therefore a strong PTY/rendering base candidate only after a compatibility adapter or maintained fork is implemented. The terminal view is an Android `View`, so Compose integration uses `AndroidView`. The Termux app repository's license file explicitly exempts the `terminal-view` and `terminal-emulator` libraries from its GPL-3.0-only license; those terminal libraries retain Apache-2.0 licensing. Avoid importing `termux-shared` without a separate license review.\n\nReference and details: [Termux terminal library spike](TERMUX_TERMINAL_LIBRARY_SPIKE.md)\n\n### ConnectBot termlib
 
 ConnectBot's terminal emulator is a separate candidate. Its public README describes libvterm-based rendering and says Kitty/iTerm2 escape-code support is planned. That makes it insufficient as the OMP terminal unless the missing protocol support is implemented and tested first.
 
 Reference: https://github.com/connectbot/termlib
 
-## Test execution record
+## Current implementation and test execution record
+
+The spike branch now pins `com.termux.termux-app:terminal-view:0.118.0`, creates a `TerminalSession` with `/system/bin/sh`, and attaches it to an embedded `TerminalView` hosted by Compose. This proves the intended API integration at source level only. The official emulator does not currently implement the OMP Kitty keyboard negotiation/stack protocol or DEC synchronized output mode 2026, so the embedded shell is not yet OMP-compatible.
 
 No Android device test has been run from this repository yet.
 
