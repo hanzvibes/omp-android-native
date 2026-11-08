@@ -41,16 +41,15 @@ jobs:
 
       - name: Cross-check pi-natives
         working-directory: upstream-omp
-        env:
-          ANDROID_NDK_HOME: ${{ runner.tool_cache }}/../android-sdk/ndk/27.2.12479018
         run: |
+          export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.2.12479018"
           NDK_BIN="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
-          echo "CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$NDK_BIN/aarch64-linux-android26-clang" >> "$GITHUB_ENV"
-          echo "CC_aarch64_linux_android=$NDK_BIN/aarch64-linux-android26-clang" >> "$GITHUB_ENV"
-          echo "CXX_aarch64_linux_android=$NDK_BIN/aarch64-linux-android26-clang++" >> "$GITHUB_ENV"
-          echo "AR_aarch64_linux_android=$NDK_BIN/llvm-ar" >> "$GITHUB_ENV"
-          echo "CMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" >> "$GITHUB_ENV"
-          echo "CMAKE_ANDROID_NDK=$ANDROID_NDK_HOME" >> "$GITHUB_ENV"
+          export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="$NDK_BIN/aarch64-linux-android26-clang"
+          export CC_aarch64_linux_android="$NDK_BIN/aarch64-linux-android26-clang"
+          export CXX_aarch64_linux_android="$NDK_BIN/aarch64-linux-android26-clang++"
+          export AR_aarch64_linux_android="$NDK_BIN/llvm-ar"
+          export CMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake"
+          export CMAKE_ANDROID_NDK="$ANDROID_NDK_HOME"
           cargo +nightly-2026-10-06 check --locked -p pi-natives --target aarch64-linux-android
 
       - name: Upload Cargo diagnostics
@@ -58,7 +57,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: omp-android-native-check-logs
-          path: |
-            upstream-omp/target/aarch64-linux-android/
+          path: upstream-omp/target/aarch64-linux-android/
           if-no-files-found: ignore
           retention-days: 7
