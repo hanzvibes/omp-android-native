@@ -33,11 +33,14 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.9.3")
     implementation("androidx.documentfile:documentfile:1.0.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+    implementation("androidx.concurrent:concurrent-futures:1.2.0")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
-    implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
+    // The empty-to-avoid-conflict artifact is only a stub; ProfileInstaller
+    // needs the real ListenableFuture API at runtime.
+    implementation("com.google.guava:guava:33.3.1-android")
     implementation("com.termux.termux-app:terminal-view:0.118.0")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
