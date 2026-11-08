@@ -55,6 +55,7 @@ fun WorkspaceManager() {
     var error by remember { mutableStateOf<String?>(null) }
     var syncStatus by remember { mutableStateOf<String?>(null) }
     var syncing by remember { mutableStateOf(false) }
+    var syncedThisSession by remember { mutableStateOf(false) }
 
     val sourcePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree()
@@ -68,6 +69,7 @@ fun WorkspaceManager() {
                 workspaceName = name
                 error = null
                 syncStatus = null
+                syncedThisSession = false
             } else error = "Android gagal menyimpan izin folder project. Coba pilih ulang."
         }
     }
@@ -88,6 +90,7 @@ fun WorkspaceManager() {
                 sharedRootUri = uri.toString()
                 sharedRootName = name
                 error = null
+                syncedThisSession = false
             } else error = "Izin akses root penyimpanan tidak bisa disimpan."
         }
     }
@@ -150,6 +153,7 @@ fun WorkspaceManager() {
                             syncing = false
                             result.onSuccess { report ->
                                 syncStatus = "Synced ${report.files} files · ${formatBytes(report.bytes)}. Termux path: $termuxPath"
+                                syncedThisSession = true
                             }.onFailure { failure ->
                                 error = failure.message ?: "Workspace sync failed."
                                 syncStatus = null
@@ -161,6 +165,20 @@ fun WorkspaceManager() {
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB7F397), contentColor = Color(0xFF10140D))
             ) { Text(if (syncing) "Syncing workspace…" else "Sync workspace to Termux") }
+
+            Button(
+                onClick = {
+                    val launchError = TermuxCommandBridge.openOmpSession(context, safeWorkspaceName)
+                    if (launchError != null) {
+                        error = launchError
+                    } else {
+                        error = null
+                    }
+                },
+                enabled = syncedThisSession && !syncing,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB7F397), contentColor = Color(0xFF10140D))
+            ) { Text("Open interactive OMP session") }
 
             OutlinedButton(onClick = {
                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
@@ -187,6 +205,7 @@ fun WorkspaceManager() {
                     sharedRootUri = null
                     sharedRootName = null
                     syncStatus = null
+                    syncedThisSession = false
                     error = null
                 }) { Text("Disconnect folders") }
             }
