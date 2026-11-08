@@ -1,8 +1,7 @@
 diff --git a/crates/pi-vfs/src/fs.rs b/crates/pi-vfs/src/fs.rs
-index 0000000..0000000 100644
 --- a/crates/pi-vfs/src/fs.rs
 +++ b/crates/pi-vfs/src/fs.rs
-@@ -505,10 +505,21 @@ fn helper_exited() -> io::Error {
+@@ -505,11 +505,18 @@
  /// Whether this process may open `path` with `mode` (`R_OK`, `W_OK`), by its
  /// effective IDs.
  #[cfg(unix)]
