@@ -91,3 +91,20 @@ Important boundary: this URI grant belongs to OMP Android. It does **not** give 
 
 Android reference: https://developer.android.com/training/data-storage/shared/documents-files
 Termux storage reference: https://github.com/termux/termux-tools/blob/master/doc/termux.1.md.in
+
+
+## Workspace sync into Termux shared storage
+
+The workspace manager now supports a bounded one-way copy from a user-selected Android SAF folder into the root of primary shared storage:
+- The user selects the source project folder.
+- The user separately selects the **root of Internal storage** as the destination. The app validates the SAF tree document ID as `primary:`; it does not accept arbitrary SD-card or provider folders for this mapping.
+- The app copies into `/storage/emulated/0/OMPWorkspaces/<workspace-name>`.
+- In Termux, after running `termux-setup-storage`, the matching path is `~/storage/shared/OMPWorkspaces/<workspace-name>`.
+- Sync overwrites matching files but does not delete stale destination files.
+- The sync limit is 3,000 files and 50 MiB. It skips `.git`, dependency/build caches, `.env*`, private key files, and common secrets directories.
+- The app requires read access to the source and read/write access to the shared-storage destination.
+
+This is a one-way copy, not a live mount or two-way sync. OMP edits inside Termux will not automatically be reflected in the original source folder yet. Large repositories may exceed the current sync cap. File sync must be tested on real Android versions and document providers before being treated as production-ready.
+
+Termux storage docs: https://github.com/termux/termux-tools/blob/master/doc/termux.1.md.in
+Termux filesystem layout and cross-app access model: https://github.com/termux/termux-packages/wiki/Termux-file-system-layout
