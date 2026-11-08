@@ -48,7 +48,7 @@ The upstream README documents a private app runtime, JNI PTY support, session AP
 
 Reference: https://github.com/libtermux/libtermux-android
 
-### ConnectBot termlib
+### Official Termux terminal libraries\n\nThe official Termux App repository publishes reusable `terminal-view` and `terminal-emulator` libraries. The inspected `TerminalSession` uses JNI to create a PTY process and supports terminal resize. Source inspection found xterm `modifyOtherKeys`, but did not find the Kitty keyboard query/stack protocol or DEC synchronized output mode 2026 required by OMP. It is therefore a strong PTY/rendering base candidate only after a compatibility adapter or maintained fork is implemented. The terminal view is an Android `View`, so Compose integration uses `AndroidView`. Check GPL-3.0-or-later obligations before distribution.\n\nReference and details: [Termux terminal library spike](TERMUX_TERMINAL_LIBRARY_SPIKE.md)\n\n### ConnectBot termlib
 
 ConnectBot's terminal emulator is a separate candidate. Its public README describes libvterm-based rendering and says Kitty/iTerm2 escape-code support is planned. That makes it insufficient as the OMP terminal unless the missing protocol support is implemented and tested first.
 
