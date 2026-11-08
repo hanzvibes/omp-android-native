@@ -21,6 +21,7 @@ object TermuxCommandBridge {
     private const val EXTRA_WORKDIR = "com.termux.RUN_COMMAND_WORKDIR"
     private const val EXTRA_BACKGROUND = "com.termux.RUN_COMMAND_BACKGROUND"
     private const val EXTRA_PENDING_INTENT = "com.termux.RUN_COMMAND_PENDING_INTENT"
+    private const val EXTRA_SESSION_ACTION = "com.termux.RUN_COMMAND_SESSION_ACTION"
     private const val EXTRA_COMMAND_LABEL = "com.termux.RUN_COMMAND_COMMAND_LABEL"
     private const val EXTRA_COMMAND_DESCRIPTION = "com.termux.RUN_COMMAND_COMMAND_DESCRIPTION"
 
@@ -56,6 +57,43 @@ object TermuxCommandBridge {
             "Android denied Termux command access. Check RUN_COMMAND permission and allow-external-apps."
         } catch (error: Exception) {
             "Could not contact Termux: ${error.message ?: error.javaClass.simpleName}"
+        }
+    }
+
+
+    /**
+     * Opens OMP in a new foreground Termux terminal session.
+     * The workspace name is normalized before it is used to build the working directory.
+     */
+    fun openOmpSession(context: Context, workspaceName: String): String? {
+        if (!isTermuxInstalled(context)) return "Termux is not installed."
+        if (context.checkSelfPermission("com.termux.permission.RUN_COMMAND") != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            return "Permission RUN_COMMAND belum diberikan. Izinkan OMP Android di App permissions."
+        }
+
+        val safeName = workspaceName.trim()
+            .replace(Regex("[^A-Za-z0-9._-]+"), "-")
+            .trim('.', '-', '_')
+            .take(60)
+            .ifBlank { "workspace" }
+        val command = Intent(ACTION_RUN_COMMAND).apply {
+            setClassName(TERMUX_PACKAGE, TERMUX_SERVICE)
+            putExtra(EXTRA_COMMAND_PATH, "/data/data/com.termux/files/usr/bin/bash")
+            putExtra(EXTRA_ARGUMENTS, arrayOf("-lc", "exec omp"))
+            putExtra(EXTRA_WORKDIR, "/storage/emulated/0/OMPWorkspaces/$safeName")
+            putExtra(EXTRA_BACKGROUND, false)
+            putExtra(EXTRA_SESSION_ACTION, 0)
+            putExtra(EXTRA_COMMAND_LABEL, "Oh My Pi · $safeName")
+            putExtra(EXTRA_COMMAND_DESCRIPTION, "Starts an interactive OMP session in the synced workspace.")
+        }
+
+        return try {
+            context.startService(command)
+            null
+        } catch (error: SecurityException) {
+            "Android denied Termux command access. Check RUN_COMMAND permission and allow-external-apps."
+        } catch (error: Exception) {
+            "Could not open OMP session: ${error.message ?: error.javaClass.simpleName}"
         }
     }
 
