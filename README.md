@@ -2,7 +2,7 @@
 
 A native Android application shell for running [Oh My Pi](https://omp.sh/) on ARM64 devices.
 
-> Early-stage project. The first Android UI scaffold and APK CI workflow are in place. The OMP runtime is not yet connected to the app.
+> Early-stage project. Android UI, workspace onboarding, and an embedded terminal prototype are under development. The full OMP runtime and Remotion workflow are not yet verified on a physical device.
 
 ## Current direction
 
@@ -13,6 +13,18 @@ Use native Android / Termux ARM64 userspace. A community-maintained OMP Termux i
 - Runtime details and caveats: [docs/ANDROID_RUNTIME.md](docs/ANDROID_RUNTIME.md)
 
 This is not an official upstream OMP Android binary release. Do not use Linux glibc binaries or generic Linux Bun builds as substitutes for Android-native artifacts.
+
+## Remotion Specialist Mode
+
+The planned Remotion workflow makes OMP an Android authoring/control surface for motion-graphics projects:
+
+- Specialized Remotion agent profile: [prompts/remotion-specialist.md](prompts/remotion-specialist.md)
+- Product and technical specification: [docs/REMOTION_SPECIALIST_MODE.md](docs/REMOTION_SPECIALIST_MODE.md)
+- Android authoring and project inspection; final video rendering runs in the cloud.
+- Embedded preview is planned as a WebView-hosted HTTPS preview with a strict origin allowlist.
+- Cloud rendering is planned behind a provider interface and authenticated broker; no long-lived GitHub token will be shipped in the APK.
+
+The specification and agent profile are committed as the foundation. Project detection, embedded preview, and cloud rendering are not implemented or device-verified yet.
 
 ## Stack
 
@@ -38,6 +50,11 @@ This is not an official upstream OMP Android binary release. Do not use Linux gl
 - [ ] Session lifecycle, exit status, and reconnect handling
 - [ ] Connect OMP sessions and provider authentication
 - [ ] Release APK and device regression tests
+- [x] Remotion Specialist product/technical specification and agent profile
+- [ ] Remotion project detection and metadata inspection
+- [ ] Embedded Remotion preview in Compose
+- [ ] Cloud render broker and durable job tracking
+- [ ] Physical-device Remotion preview and render regression
 
 ## Build
 
@@ -49,6 +66,6 @@ For local builds, use JDK 17 and Gradle 8.9:
 
 ## Important
 
-The current APK is a Termux companion onboarding shell, not yet a functioning coding agent. It detects and opens Termux, copies setup commands, and can request one fixed read-only OMP version diagnostic through the permissioned Termux bridge. It does not run the installer or accept arbitrary shell commands. The bridge still needs physical-device verification. Workspace folders can be copied into Termux shared storage with explicit user permission. Sync is limited to 3,000 files / 50 MB, skips dependency/build folders and secret env/key files, and never deletes destination files. The bridge and file sync still need physical-device verification. Session lifecycle/reconnect handling, provider authentication, and device regression tests remain pending. The interactive launch path is implemented but not yet device-verified.
+The current APK is not yet a complete coding agent. Existing workspace and terminal integration paths still need physical-device verification. Workspace sync is limited to 3,000 files / 50 MB, skips dependency/build folders and secret env/key files, and never deletes destination files. Do not treat a CI build as proof of runtime compatibility.
 
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) before redistributing third-party runtime components.
